@@ -22,7 +22,7 @@ app.use(express.bodyParser())
   }));
 
 require("express-persona")(app, {
-  audience: "http://localhost:8888"
+  audience: "http://localhost:8888" // Must match your browser's address bar
 });
 ```
 
@@ -34,13 +34,25 @@ loginButton.addEventListener("click", function() {
     if (!assertion) {
       return;
     }
-    
+
     var xhr = new XMLHttpRequest();
     xhr.open("POST", "/browserid/verify", true);
     xhr.setRequestHeader("Content-Type", "application/json");
-    
+    xhr.addEventListener("loadend", function(e) {
+      try {
+        var data = JSON.parse(this.response);
+        if (data.status === "okay") {
+          // the email address the user logged in with
+          console.log(data.email);
+        } else {
+          console.log("Login failed because " + data.reason);
+        }
+      } catch (ex) {
+        // oh no, we didn't get valid JSON from the server
+      }
+    }, false);
     xhr.send(JSON.stringify({
-      
+      assertion: assertion
     }));
   });
 }, false);
