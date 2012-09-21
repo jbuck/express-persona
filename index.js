@@ -1,7 +1,6 @@
 "use strict";
 
 var https = require("https"),
-    qs = require("querystring"),
     url = require("url");
 
 module.exports = function(app, options) {
@@ -63,14 +62,13 @@ module.exports = function(app, options) {
         }
       });
     });
-    vreq.setHeader("Content-Type", "application/x-www-form-urlencoded");
-    var data = qs.stringify({
+    vreq.setHeader("Content-Type", "application/json");
+    var data = JSON.stringify({
       assertion: req.body.assertion,
       audience: audience
     });
     vreq.setHeader("Content-Length", data.length);
-    vreq.write(data);
-    vreq.end();
+    vreq.end(data);
   });
 
   app.post("/browserid/logout", function(req, res) {
