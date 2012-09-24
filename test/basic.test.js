@@ -44,8 +44,8 @@ async.waterfall([
 ], function(err, audience, assertion, email) {
   async.series([
     function(callback) {
-      test("basic browserid test", function(t) {
-        var requestOpts = url.parse(audience + "/browserid/verify");
+      test("basic login test with defaults", function(t) {
+        var requestOpts = url.parse(audience + "/persona/verify");
         requestOpts.method = "POST";
 
         var request = http.request(requestOpts, function(verifyRes) {

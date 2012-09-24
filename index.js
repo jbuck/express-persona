@@ -3,10 +3,24 @@
 var https = require("https"),
     url = require("url");
 
+var defaultOptions = {
+  audience: "",
+  logoutPath: "/persona/logout",
+  sessionKey: "email",
+  verifyPath: "/persona/verify"
+};
+
 module.exports = function(app, options) {
   options = options || {};
 
-  var audience = options.audience;
+  var personaOpts = {};
+  Object.keys(defaultOptions).forEach(function(key) {
+    if (typeof options[key] === "string") {
+      personaOpts[key] = options[key];
+    } else {
+      personaOpts[key] = defaultOptions[key];
+    }
+  });
 
   // Use our own https agent that rejects bad SSL certs
   var verifierOpts = url.parse("https://verifier.login.persona.org/verify");
@@ -14,13 +28,12 @@ module.exports = function(app, options) {
   verifierOpts.rejectUnauthorized = true;
   verifierOpts.agent = new https.Agent(verifierOpts);
 
-  app.post("/browserid/verify", function(req, res) {
+  app.post(personaOpts.verifyPath, function(req, res) {
     var vreq = https.request(verifierOpts, function(verifierRes) {
       var body = "";
 
       // How to differentiate between a network error and an SSL error?
       verifierRes.on("error", function(error) {
-        console.error(arguments);
         res.json({
           status: "failure",
           reason: "Server-side exception"
@@ -40,7 +53,7 @@ module.exports = function(app, options) {
 
           if (valid) {
             if (req.session) {
-              req.session.email = response.email;
+              req.session[personaOpts.sessionKey] = response.email;
             }
 
             res.json({
@@ -65,15 +78,15 @@ module.exports = function(app, options) {
     vreq.setHeader("Content-Type", "application/json");
     var data = JSON.stringify({
       assertion: req.body.assertion,
-      audience: audience
+      audience: personaOpts.audience
     });
     vreq.setHeader("Content-Length", data.length);
     vreq.end(data);
   });
 
-  app.post("/browserid/logout", function(req, res) {
+  app.post(personaOpts.logoutPath, function(req, res) {
     if (req.session) {
-      req.session.email = null;
+      req.session[personaOpts.sessionKey] = null;
     }
 
     res.json(true);
