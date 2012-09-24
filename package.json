@@ -1,6 +1,6 @@
 {
   "name": "express-persona",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Mozilla Persona authentication for your Express application",
   "keywords": [
     "mozilla",
@@ -20,6 +20,7 @@
     "test": "./node_modules/.bin/tap test/*.test.js"
   },
   "devDependencies": {
+    "async": "~1.0.22",
     "express": "~2.5.11",
     "tap": "~0.3.1"
   }
