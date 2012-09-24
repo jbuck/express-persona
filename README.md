@@ -77,7 +77,7 @@ Documentation
 ### Required options:
 
 * `audience` - The URL of your express app when viewed in a browser. Must include the protocol, hostname, and port.
-  * Example: `"http://example.org:80`, `https://example.org:443"`,
+  * Example: `http://example.org:80`, `https://example.org:443`,
 
 Tests
 -----
