@@ -64,4 +64,4 @@ Coming soon
 
 Tests
 -----
-Coming soon
+Run tests using `npm test`.
