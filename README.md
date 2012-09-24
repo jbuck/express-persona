@@ -67,7 +67,17 @@ implement CSRF protection as well. I recommend the built-in express csrf middlew
 
 Documentation
 -------------
-Coming soon
+
+### API
+
+* `require('express-persona')` returns `function(express, options)`
+  * `express` is an instance of the express server that you want to add routes to
+  * `options` is an object. It has one required parameter, `audience`.
+
+### Required options:
+
+* `audience` - The URL of your express app when viewed in a browser. Must include the protocol, hostname, and port.
+  * Example: `"http://example.org:80`, `https://example.org:443"`,
 
 Tests
 -----
