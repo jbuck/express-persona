@@ -58,6 +58,13 @@ loginButton.addEventListener("click", function() {
 }, false);
 ```
 
+By default, express-persona adds the users email address to `req.session.email` when their
+email is validated.
+
+This library will handle 3 of 4 essential practices for [Persona security considerations]
+(https://developer.mozilla.org/en-US/docs/Persona/Security_Considerations) but you should
+implement CSRF protection as well. I recommend the built-in express csrf middleware.
+
 Documentation
 -------------
 Coming soon
