@@ -4,7 +4,6 @@ var common = require("./common"),
 // We can use a fake audience in tests
 var audience = "http://example.org:80";
 
-// Create the express server, and pass the options object to express-persona
 test("basic login test with defaults", function(t) {
   t.plan(2);
 
@@ -13,8 +12,25 @@ test("basic login test with defaults", function(t) {
       var localVerifier = "http://localhost:" + app.address().port + "/persona/verify";
 
       common.verifyAssertion(localVerifier, assertionData.assertion, function(err, verifiedData) {
-        t.equal(verifiedData.status, "okay", "status should be 'okay'");
-        t.equal(verifiedData.email, assertionData.email, "email returned should be same as sent");
+        t.equal(verifiedData.status, "okay");
+        t.equal(verifiedData.email, assertionData.email);
+        t.end();
+        app.close();
+      });
+    });
+  });
+});
+
+test("no audience set", function(t) {
+  t.plan(2);
+
+  common.createServer({}, function(err, app) {
+    common.getAssertionFor(audience, function(err, assertionData) {
+      var localVerifier = "http://localhost:" + app.address().port + "/persona/verify";
+
+      common.verifyAssertion(localVerifier, assertionData.assertion, function(err, verifiedData) {
+        t.equal(verifiedData.status, "failure");
+        t.equal(verifiedData.reason, "need assertion and audience");
         t.end();
         app.close();
       });
