@@ -1,79 +1,23 @@
-var async = require("async"),
-    http = require("http"),
-    test = require("tap").test,
-    url = require("url");
+var common = require("./common"),
+    test = require("tap").test;
 
-async.waterfall([
+// We can use a fake audience in tests
+var audience = "http://example.org:80";
 
-  function(callback) {
-    var express = require("express"),
-        app = express.createServer();
+// Create the express server, and pass the options object to express-persona
+test("basic login test with defaults", function(t) {
+  t.plan(2);
 
-    app.use(express.bodyParser())
-      .use(express.cookieParser())
-      .use(express.session({
-        secret: "blah"
-      }));
+  common.createServer({audience: audience}, function(err, app) {
+    common.getAssertionFor(audience, function(err, assertionData) {
+      var localVerifier = "http://localhost:" + app.address().port + "/persona/verify";
 
-    app.listen(0, "127.0.0.1", function() {
-      var audience = "http://localhost:" + app.address().port;
-
-      require('../index.js')(app, {
-        audience: audience
+      common.verifyAssertion(localVerifier, assertionData.assertion, function(err, verifiedData) {
+        t.equal(verifiedData.status, "okay", "status should be 'okay'");
+        t.equal(verifiedData.email, assertionData.email, "email returned should be same as sent");
+        t.end();
+        app.close();
       });
-
-      callback(null, audience);
-    });
-  },
-
-  function(audience, callback) {
-    http.get("http://personatestuser.org/email_with_assertion/" + encodeURIComponent(audience), function(res) {
-      var data = "";
-
-      res.on("data", function(chunk) {
-        data = data + chunk;
-      });
-
-      res.on("end", function() {
-        data = JSON.parse(data);
-        callback(null, audience, data.assertion, data.email);
-      });
-    });
-  }
-
-], function(err, audience, assertion, email) {
-  async.series([
-    function(callback) {
-      test("basic login test with defaults", function(t) {
-        var requestOpts = url.parse(audience + "/persona/verify");
-        requestOpts.method = "POST";
-
-        var request = http.request(requestOpts, function(verifyRes) {
-          var data = "";
-
-          verifyRes.on("data", function(chunk) {
-            data = data + chunk;
-          });
-
-          verifyRes.on("end", function() {
-            data = JSON.parse(data);
-            t.equal(data.status, "okay", "status should be 'okay'");
-            t.equal(data.email, email, "email returned should be same as sent");
-            t.end();
-            callback();
-          });
-        });
-        request.setHeader("Content-Type", "application/json");
-        var data = JSON.stringify({
-          assertion: assertion
-        });
-        request.setHeader("Content-Length", data.length);
-        request.end(data);
-      });
-    }
-  ], function(err) {
-    process.nextTick(function() {
-      process.exit();
     });
   });
 });
