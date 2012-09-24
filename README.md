@@ -79,6 +79,18 @@ Documentation
 * `audience` - The URL of your express app when viewed in a browser. Must include the protocol, hostname, and port.
   * Example: `http://example.org:80`, `https://example.org:443`
 
+### Optional options:
+
+* `verifyPath` - The URL that clients use to verify credentials.
+  * Default: `/persona/verify`
+  * Examples: `/browserid/verify`, `/api/verify`
+* `logoutPath` - The URL that clients use to logout.
+  * Default: `/persona/logout`
+  * Examples: `/browserid/logout`, `/api/logout`
+* `sessionKey` - The session key to store the validated email in.
+  * Default: `email`
+  * Example: `user`, `username`
+
 Tests
 -----
 Run tests using `npm test`.
