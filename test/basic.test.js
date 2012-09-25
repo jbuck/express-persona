@@ -5,17 +5,24 @@ var common = require("./common"),
 var audience = "http://example.org:80";
 
 test("basic login test with defaults", function(t) {
-  t.plan(2);
+  t.plan(4);
 
   common.createServer({audience: audience}, function(err, app) {
     common.getAssertionFor(audience, function(err, assertionData) {
-      var localVerifier = "http://localhost:" + app.address().port + "/persona/verify";
+      var host = "http://localhost:" + app.address().port;
+      var localVerifier = host + "/persona/verify";
 
       common.verifyAssertion(localVerifier, assertionData.assertion, function(err, verifiedData) {
         t.equal(verifiedData.status, "okay");
         t.equal(verifiedData.email, assertionData.email);
-        t.end();
-        app.close();
+        common.getSessionData(host + "/session", function(err, body) {
+          t.equal(body.email, assertionData.email);
+          common.logout(host + "/persona/logout", function(err, body) {
+            t.equal(body.status, "okay");
+            t.end();
+            app.close();
+          });
+        });
       });
     });
   });

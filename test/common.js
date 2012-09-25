@@ -1,44 +1,31 @@
 var async = require("async"),
     express = require("express"),
-    http = require("http"),
-    url = require("url");
+    request = require("request");
 
 var email, password, q;
 
-http.get("http://personatestuser.org/email", function(res) {
-  var data = "";
-
-  res.on("data", function(chunk) {
-    data = data + chunk;
-  });
-
-  res.on("end", function() {
-    var obj = JSON.parse(data);
-    email = obj.email;
-    password = obj.pass;
-    q.concurrency = 1;
-    q.process();
-  });
+request.get({
+  uri: "http://personatestuser.org/email",
+  json: true
+}, function(error, response, body) {
+  email = body.email;
+  password = body.pass;
+  q.concurrency = 1;
+  q.process();
 });
 
 // wait until we have an email and password before processing this queue
 q = async.queue(function(task, callback) {
-  var url = "http://personatestuser.org/assertion/" +
+  var uri = "http://personatestuser.org/assertion/" +
     encodeURIComponent(task.audience)+ "/" +
     encodeURIComponent(email) + "/" +
     encodeURIComponent(password);
 
-  http.get(url, function(res) {
-    var data = "";
-
-    res.on("data", function(chunk) {
-      data = data + chunk;
-    });
-
-    res.on("end", function() {
-      var obj = JSON.parse(data);
-      callback(null, obj);
-    });
+  request.get({
+    uri: uri,
+    json: true
+  }, function(error, response, body) {
+    callback(null, body);
   });
 }, 0);
 
@@ -55,32 +42,40 @@ module.exports = {
         secret: "blah"
       }));
 
+    app.get("/session", function(req, res) {
+      res.json(req.session);
+    });
+
     app.listen(0, "127.0.0.1", function() {
       require('../index.js')(app, options);
       callback(null, app);
     });
   },
   verifyAssertion: function verifyAssertion(localVerifier, assertion, callback) {
-    var requestOpts = url.parse(localVerifier);
-    requestOpts.method = "POST";
-
-    var request = http.request(requestOpts, function(verifyRes) {
-      var data = "";
-
-      verifyRes.on("data", function(chunk) {
-        data = data + chunk;
-      });
-
-      verifyRes.on("end", function() {
-        var obj = JSON.parse(data);
-        callback(null, obj);
-      });
+    request.post({
+      uri: localVerifier,
+      json: true,
+      body: JSON.stringify({
+        assertion: assertion
+      })
+    }, function(err, response, body) {
+      callback(null, body);
     });
-    request.setHeader("Content-Type", "application/json");
-    var data = JSON.stringify({
-      assertion: assertion
+  },
+  getSessionData: function getSessionData(uri, callback) {
+    request.get({
+      uri: uri,
+      json: true
+    }, function(err, response, body) {
+      callback(null, body);
     });
-    request.setHeader("Content-Length", data.length);
-    request.end(data);
+  },
+  logout: function logout(localLogout, callback) {
+    request.post({
+      uri: localLogout,
+      json: true
+    }, function(err, response, body) {
+      callback(null, body);
+    });
   }
 };

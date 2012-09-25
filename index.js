@@ -89,6 +89,8 @@ module.exports = function(app, options) {
       req.session[personaOpts.sessionKey] = null;
     }
 
-    res.json(true);
+    res.json({
+      status: "okay"
+    });
   });
 };
