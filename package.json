@@ -17,7 +17,7 @@
     "url": "https://github.com/jbuck/express-persona.git"
   },
   "scripts": {
-    "test": "./node_modules/.bin/tap test/*.test.js"
+    "test": "./node_modules/.bin/tap --timeout 60 test/*.test.js"
   },
   "devDependencies": {
     "async": "~0.1.22",
