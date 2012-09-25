@@ -1,4 +1,4 @@
-express-persona
+express-persona [![Build Status](https://secure.travis-ci.org/jbuck/express-persona.png)](http://travis-ci.org/jbuck/express-persona)
 ===============
 
 Mozilla Persona integration for Express. express-persona is designed to quickly get
