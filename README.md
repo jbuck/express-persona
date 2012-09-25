@@ -90,6 +90,9 @@ Documentation
 * `sessionKey` - The session key to store the validated email in.
   * Default: `email`
   * Example: `user`, `username`
+* `verifierURI` - The URI of the Persona Remote Verification API
+  * Default: `https://verifier.login.persona.org/verify`
+  * You probably don't want to touch this unless you have a good reason, like testing.
 
 ### Verify route
 
