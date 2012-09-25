@@ -37,3 +37,20 @@ test("no audience set", function(t) {
     });
   });
 });
+
+test("changed verify path", function(t) {
+  t.plan(2);
+
+  common.createServer({audience: audience, verifyPath: "/browserid/verify"}, function(err, app) {
+    common.getAssertionFor(audience, function(err, assertionData) {
+      var localVerifier = "http://localhost:" + app.address().port + "/browserid/verify";
+
+      common.verifyAssertion(localVerifier, assertionData.assertion, function(err, verifiedData) {
+        t.equal(verifiedData.status, "okay");
+        t.equal(verifiedData.email, assertionData.email);
+        t.end();
+        app.close();
+      });
+    });
+  });
+});
