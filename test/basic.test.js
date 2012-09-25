@@ -5,7 +5,7 @@ var common = require("./common"),
 var audience = "http://example.org:80";
 
 test("basic login test with defaults", function(t) {
-  t.plan(4);
+  t.plan(5);
 
   common.createServer({audience: audience}, function(err, app) {
     common.getAssertionFor(audience, function(err, assertionData) {
@@ -19,8 +19,11 @@ test("basic login test with defaults", function(t) {
           t.equal(body.email, assertionData.email);
           common.logout(host + "/persona/logout", function(err, body) {
             t.equal(body.status, "okay");
-            t.end();
-            app.close();
+            common.getSessionData(host + "/session", function(err, body) {
+              t.equal(body.email, null);
+              t.end();
+              app.close();
+            })
           });
         });
       });
