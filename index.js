@@ -7,6 +7,7 @@ var defaultOptions = {
   audience: "",
   logoutPath: "/persona/logout",
   sessionKey: "email",
+  verifierURI: "https://verifier.login.persona.org/verify",
   verifyPath: "/persona/verify"
 };
 
@@ -23,7 +24,7 @@ module.exports = function(app, options) {
   });
 
   // Use our own https agent that rejects bad SSL certs
-  var verifierOpts = url.parse("https://verifier.login.persona.org/verify");
+  var verifierOpts = url.parse(personaOpts.verifierURI);
   verifierOpts.method = "POST";
   verifierOpts.rejectUnauthorized = true;
   verifierOpts.agent = new https.Agent(verifierOpts);
@@ -32,7 +33,6 @@ module.exports = function(app, options) {
     var vreq = https.request(verifierOpts, function(verifierRes) {
       var body = "";
 
-      // How to differentiate between a network error and an SSL error?
       verifierRes.on("error", function(error) {
         res.json({
           status: "failure",
@@ -73,6 +73,13 @@ module.exports = function(app, options) {
             reason: "Server-side exception"
           });
         }
+      });
+    });
+    // SSL validation can fail, which will be thrown here
+    vreq.on("error", function(error) {
+      res.json({
+        status: "failure",
+        reason: "Server-side exception"
       });
     });
     vreq.setHeader("Content-Type", "application/json");

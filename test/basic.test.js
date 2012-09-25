@@ -96,3 +96,23 @@ test("no default options", function(t) {
     });
   });
 });
+
+test("bad SSL cert on the verifier", function(t) {
+  t.plan(2);
+
+  common.createServer({
+    audience: audience,
+    verifierURI: "https://63.245.217.134/verify"
+  }, function(err, app) {
+    common.getAssertionFor(audience, function(err, assertionData) {
+      var localVerifier = "http://localhost:" + app.address().port + "/persona/verify";
+
+      common.verifyAssertion(localVerifier, assertionData.assertion, function(err, verifiedData) {
+        t.equal(verifiedData.status, "failure");
+        t.equal(verifiedData.reason, "Server-side exception");
+        t.end();
+        app.close();
+      });
+    });
+  });
+});
