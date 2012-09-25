@@ -48,6 +48,23 @@ test("no audience set", function(t) {
   });
 });
 
+test("wrong audience", function(t) {
+  t.plan(2);
+
+  common.createServer({audience: audience}, function(err, app) {
+    common.getAssertionFor("http://lolhaxzors.net:80", function(err, assertionData) {
+      var localVerifier = "http://localhost:" + app.address().port + "/persona/verify";
+
+      common.verifyAssertion(localVerifier, assertionData.assertion, function(err, verifiedData) {
+        t.equal(verifiedData.status, "failure");
+        t.equal(verifiedData.reason, "audience mismatch: domain mismatch");
+        t.end();
+        app.close();
+      });
+    });
+  });
+});
+
 test("no default options", function(t) {
   t.plan(5);
 
