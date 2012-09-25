@@ -5,7 +5,7 @@ Mozilla Persona integration for Express. express-persona is designed to quickly 
 Persona authentication working in your Express application, while following Persona
 security best practices.
 
-Quick Start
+Quick start
 -----------
 Install using npm: `npm install express-persona`
 
@@ -74,12 +74,12 @@ Documentation
   * `express` is an instance of the express server that you want to add routes to
   * `options` is an object. It has one required parameter, `audience`.
 
-### Required options:
+### Required options
 
 * `audience` - The URL of your express app when viewed in a browser. Must include the protocol, hostname, and port.
   * Example: `http://example.org:80`, `https://example.org:443`
 
-### Optional options:
+### Optional options
 
 * `verifyPath` - The URL that clients use to verify credentials.
   * Default: `/persona/verify`
@@ -91,7 +91,7 @@ Documentation
   * Default: `email`
   * Example: `user`, `username`
 
-### Verify Route
+### Verify route
 
 * On success:
 
@@ -111,7 +111,7 @@ Documentation
 }
 ```
 
-### Logout Route
+### Logout route
 
 * Always returns:
 
@@ -123,4 +123,7 @@ Documentation
 
 Tests
 -----
-Run tests using `npm test`.
+
+### Running Tests
+
+Run tests using `npm test` from the root of the repository.
