@@ -91,6 +91,36 @@ Documentation
   * Default: `email`
   * Example: `user`, `username`
 
+### Verify Route
+
+* On success:
+
+```javascript
+{
+  "status": "okay"
+  "email": "jon@example.org"
+}
+```
+
+* On failure
+
+```javascript
+{
+  "status": "failure"
+  "reason": "request failed"
+}
+```
+
+### Logout Route
+
+* Always returns:
+
+```javascript
+{
+  "status": "okay"
+}
+```
+
 Tests
 -----
 Run tests using `npm test`.
