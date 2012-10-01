@@ -26,7 +26,8 @@ require("express-persona")(app, {
 });
 ```
 
-Add the Persona login to a web page, and send the assertion to your Express application:
+Add the [Persona login](https://developer.mozilla.org/en-US/docs/DOM/navigator.id#CallbackMethods) 
+to a web page, and send the assertion to your Express application:
 
 ```javascript
 loginButton.addEventListener("click", function() {
