@@ -34,7 +34,7 @@ module.exports = function(app, options) {
 
   var personaOpts = {};
   Object.keys(defaultOptions).forEach(function(key) {
-    if (typeof options[key] === "string") {
+    if (typeof options[key] === "string" || typeof options[key] === "function") {
       personaOpts[key] = options[key];
     } else {
       personaOpts[key] = defaultOptions[key];
