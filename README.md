@@ -94,12 +94,12 @@ Documentation
 * `verifierURI` - The URI of the Persona Remote Verification API
   * Default: `https://verifier.login.persona.org/verify`
   * You probably don't want to touch this unless you have a good reason, like testing.
-* `verifyResponse(error, req, res, email)` - function to generate response for verify route
-  * Default: see _Verify rout_, below, for successess and failure responses
+* `verifyResponse(error, req, res, email)` - Function to generate response for verify route
+  * Default: see _Verify route_, below, for successess and failure responses
   * `error` will be a string suitable for display (the "reason" attribute in the default implementation), if an error occurs
   * `req, res` are the request and response objects
   * `email` is a string containing the email, and will exist if there is not an error
-* `logoutResponse(error, req, res)` - function to generate response for logout route
+* `logoutResponse(error, req, res)` - Function to generate response for logout route
   * Default: see _Logout route_, below, for response
   * `error` will be a string suitable for display, if an error occurs
   * `req, res` are the request and response objects
