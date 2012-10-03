@@ -72,19 +72,21 @@ test("no default options", function(t) {
     audience: audience,
     verifyPath: "/browserid/verify",
     logoutPath: "/browserid/logout",
-    sessionKey: "user"
+    sessionKey: "user",
+    verifyResponse: function (error, req, res, email) { res.json({ error: error, email: email }); },
+    logoutResponse: function (error, req, res) { res.json({error: error}); }
   }, function(err, app) {
     common.getAssertionFor(audience, function(err, assertionData) {
       var host = "http://localhost:" + app.address().port;
       var localVerifier = host + "/browserid/verify";
 
       common.verifyAssertion(localVerifier, assertionData.assertion, function(err, verifiedData) {
-        t.equal(verifiedData.status, "okay");
+        t.equal(verifiedData.error, null);
         t.equal(verifiedData.email, assertionData.email);
         common.getSessionData(host + "/session", function(err, body) {
           t.equal(body.user, assertionData.email);
           common.logout(host + "/browserid/logout", function(err, body) {
-            t.equal(body.status, "okay");
+            t.equal(body.error, null);
             common.getSessionData(host + "/session", function(err, body) {
               t.equal(body.user, null);
               t.end();

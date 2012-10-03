@@ -8,7 +8,25 @@ var defaultOptions = {
   logoutPath: "/persona/logout",
   sessionKey: "email",
   verifierURI: "https://verifier.login.persona.org/verify",
-  verifyPath: "/persona/verify"
+  verifyPath: "/persona/verify",
+  verifyResponse: function(error, req, res, email) {
+    var out;
+    if (error) {
+      out = { status: "failure", reason: error };
+    } else {
+      out = { status: "okay", email: email };
+    }
+    res.json(out);
+  },
+  logoutResponse: function(error, req, res) {
+    var out;
+    if (error) {
+      out = { status: "failure", reason: error };
+    } else {
+      out = { status: "okay" };
+    }
+    res.json(out);
+  }
 };
 
 module.exports = function(app, options) {
@@ -16,7 +34,7 @@ module.exports = function(app, options) {
 
   var personaOpts = {};
   Object.keys(defaultOptions).forEach(function(key) {
-    if (typeof options[key] === "string") {
+    if (typeof options[key] === typeof defaultOptions[key]) {
       personaOpts[key] = options[key];
     } else {
       personaOpts[key] = defaultOptions[key];
@@ -34,10 +52,7 @@ module.exports = function(app, options) {
       var body = "";
 
       verifierRes.on("error", function(error) {
-        res.json({
-          status: "failure",
-          reason: "Server-side exception"
-        });
+        personaOpts.verifyResponse("Server-side exception", req, res);
       });
 
       verifierRes.on("data", function(chunk) {
@@ -56,31 +71,19 @@ module.exports = function(app, options) {
               req.session[personaOpts.sessionKey] = response.email;
             }
 
-            res.json({
-              status: "okay",
-              email: response.email
-            });
+            personaOpts.verifyResponse(null, req, res, response.email);
           } else {
-            res.json({
-              status: "failure",
-              reason: response.reason
-            });
+            personaOpts.verifyResponse(response.reason, req, res);
           }
 
         } catch (e) {
-          res.json({
-            status: "failure",
-            reason: "Server-side exception"
-          });
+          personaOpts.verifyResponse("Server-side exception", req, res);
         }
       });
     });
     // SSL validation can fail, which will be thrown here
     vreq.on("error", function(error) {
-      res.json({
-        status: "failure",
-        reason: "Server-side exception"
-      });
+      personaOpts.verifyResponse("Server-side exception", req, res);
     });
     vreq.setHeader("Content-Type", "application/json");
     var data = JSON.stringify({
@@ -96,8 +99,6 @@ module.exports = function(app, options) {
       req.session[personaOpts.sessionKey] = null;
     }
 
-    res.json({
-      status: "okay"
-    });
+    personaOpts.logoutResponse(null, req, res);
   });
 };
