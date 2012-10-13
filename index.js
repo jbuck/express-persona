@@ -46,8 +46,17 @@ module.exports = function(app, options) {
   verifierOpts.method = "POST";
   verifierOpts.rejectUnauthorized = true;
   verifierOpts.agent = new https.Agent(verifierOpts);
+  verifierOpts.headers = {
+    "Content-Type": "application/json"
+  };
 
   app.post(personaOpts.verifyPath, function(req, res) {
+    var data = JSON.stringify({
+      assertion: req.body.assertion,
+      audience: personaOpts.audience
+    });
+    verifierOpts.headers["Content-Length"] = data.length;
+
     var vreq = https.request(verifierOpts, function(verifierRes) {
       var body = "";
 
@@ -56,7 +65,7 @@ module.exports = function(app, options) {
       });
 
       verifierRes.on("data", function(chunk) {
-        body = body + chunk;
+        body += chunk;
       });
 
       // Match the Persona Remote Verification API's return values
@@ -81,17 +90,11 @@ module.exports = function(app, options) {
         }
       });
     });
+    vreq.end(data);
     // SSL validation can fail, which will be thrown here
     vreq.on("error", function(error) {
       personaOpts.verifyResponse("Server-side exception", req, res);
     });
-    vreq.setHeader("Content-Type", "application/json");
-    var data = JSON.stringify({
-      assertion: req.body.assertion,
-      audience: personaOpts.audience
-    });
-    vreq.setHeader("Content-Length", data.length);
-    vreq.end(data);
   });
 
   app.post(personaOpts.logoutPath, function(req, res) {
