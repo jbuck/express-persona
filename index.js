@@ -48,6 +48,11 @@ module.exports = function(app, options) {
   verifierOpts.agent = new https.Agent(verifierOpts);
 
   app.post(personaOpts.verifyPath, function(req, res) {
+    // If the bodyParser middleware hasn't been used() then we can't get the assertion
+    if (!req.body) {
+      personaOpts.verifyResponse("Server-side exception", req, res);
+    }
+
     var vreq = https.request(verifierOpts, function(verifierRes) {
       var body = "";
 
