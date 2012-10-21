@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>navigator.id.get() with session</title>
+    <script src="https://login.persona.org/include.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        document.querySelector("#login").addEventListener("click", function() {
+          navigator.id.get(function(assertion) {
+            if (!assertion) {
+              return;
+            }
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "/persona/verify", true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.responseType = "json";
+            xhr.addEventListener("loadend", function(e) {
+              var data = this.response;
+              if (data && data.status === "okay") {
+                document.querySelector("#user").textContent = data.email;
+              }
+            }, false);
+
+            xhr.send(JSON.stringify({
+              assertion: assertion
+            }));
+          });
+        }, false);
+      }, false);
+    </script>
+  </head>
+  <body>
+    <p>Current user is: <span id="user"></span></p>
+    <button id="login">Login</button>
+  </body>
+</html>
