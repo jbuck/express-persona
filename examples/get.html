@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>navigator.id.get() with session</title>
+    <title>navigator.id.get() example</title>
+    <link rel="stylesheet" href="style.css">
     <script src="https://login.persona.org/include.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", function() {
@@ -14,11 +15,12 @@
             var xhr = new XMLHttpRequest();
             xhr.open("POST", "/persona/verify", true);
             xhr.setRequestHeader("Content-Type", "application/json");
-            xhr.responseType = "json";
             xhr.addEventListener("loadend", function(e) {
-              var data = this.response;
+              var data = JSON.parse(this.responseText);
               if (data && data.status === "okay") {
                 document.querySelector("#user").textContent = data.email;
+                document.querySelector("#login").disabled = "disabled";
+                document.querySelector("#logout").disabled = "";
               }
             }, false);
 
@@ -27,11 +29,25 @@
             }));
           });
         }, false);
+
+        document.querySelector("#logout").addEventListener("click", function() {
+          var xhr = new XMLHttpRequest();
+          xhr.open("POST", "/persona/logout", true);
+          xhr.addEventListener("loadend", function(e) {
+            document.querySelector("#user").textContent = "logged out";
+            document.querySelector("#login").disabled = "";
+            document.querySelector("#logout").disabled = "disabled";
+          });
+          xhr.send();
+        }, false);
       }, false);
     </script>
   </head>
   <body>
-    <p>Current user is: <span id="user"></span></p>
+    <h1>Using navigator.id.get()</h1>
+    <p>Current user is: <span id="user">logged out</span></p>
     <button id="login">Login</button>
+    <button id="logout" disabled="disabled">Logout</button>
+    <p>Back to <a href="..">examples</a>
   </body>
 </html>

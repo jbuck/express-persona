@@ -5,7 +5,6 @@ var express = require("express"),
 // If you don't want to use express' session middle, you could also use `client-sessions`
 app.use(express.logger())
    .use(express.static(__dirname))
-   .use(express.directory(__dirname))
    .use(express.bodyParser())
    .use(express.cookieParser())
    .use(express.session({
