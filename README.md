@@ -26,37 +26,50 @@ require("express-persona")(app, {
 });
 ```
 
-Add the [Persona login](https://developer.mozilla.org/en-US/docs/DOM/navigator.id#CallbackMethods)
-to a web page, and send the assertion to your Express application:
+Include the Persona library in your web page:
+
+`<script src="https://login.persona.org/include.js"></script>`
+
+Add login and logout functionality to your buttons:
 
 ```javascript
-loginButton.addEventListener("click", function() {
-  navigator.id.get(function(assertion) {
-    if (!assertion) {
-      return;
-    }
+document.querySelector("#login").addEventListener("click", function() {
+  navigator.id.request();
+}, false);
 
+document.querySelector("#logout").addEventListener("click", function() {
+  navigator.id.logout();
+}, false);
+```
+
+Watch for login and logout actions:
+
+```javascript
+navigator.id.watch({
+  onlogin: function(assertion) {
     var xhr = new XMLHttpRequest();
     xhr.open("POST", "/persona/verify", true);
     xhr.setRequestHeader("Content-Type", "application/json");
     xhr.addEventListener("loadend", function(e) {
-      try {
-        var data = JSON.parse(this.response);
-        if (data.status === "okay") {
-          // the email address the user logged in with
-          console.log(data.email);
-        } else {
-          console.log("Login failed because " + data.reason);
-        }
-      } catch (ex) {
-        // oh no, we didn't get valid JSON from the server
+      var data = JSON.parse(this.responseText);
+      if (data && data.status === "okay") {
+        console.log("You have been logged in as: " + data.email);
       }
     }, false);
+
     xhr.send(JSON.stringify({
       assertion: assertion
     }));
-  });
-}, false);
+  },
+  onlogout: function() {
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "/persona/logout", true);
+    xhr.addEventListener("loadend", function(e) {
+      console.log("You have been logged out");
+    });
+    xhr.send();
+  }
+});
 ```
 
 By default, express-persona adds the users email address to `req.session.email` when their
@@ -65,6 +78,9 @@ email is validated.
 This library will handle 3 of 4 essential practices for [Persona security considerations]
 (https://developer.mozilla.org/en-US/docs/Persona/Security_Considerations) but you should
 implement CSRF protection as well. I recommend the built-in express csrf middleware.
+
+You can view and run complete examples in the
+[examples directory](https://github.com/jbuck/express-persona/tree/master/examples)
 
 Documentation
 -------------
