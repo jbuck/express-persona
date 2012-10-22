@@ -6,7 +6,6 @@
     <script>
       navigator.id.watch({
         onlogin: function(assertion) {
-console.log("onlogin called");
           var xhr = new XMLHttpRequest();
           xhr.open("POST", "/persona/verify", true);
           xhr.setRequestHeader("Content-Type", "application/json");
@@ -25,7 +24,6 @@ console.log("onlogin called");
           }));
         },
         onlogout: function() {
-console.log("onlogout called");
           var xhr = new XMLHttpRequest();
           xhr.open("POST", "/persona/logout", true);
           xhr.addEventListener("loadend", function(e) {
@@ -39,12 +37,10 @@ console.log("onlogout called");
 
       document.addEventListener("DOMContentLoaded", function() {
         document.querySelector("#login").addEventListener("click", function() {
-console.log("login clicked");
           navigator.id.request();
         }, false);
 
         document.querySelector("#logout").addEventListener("click", function() {
-console.log("logout clicked");
           navigator.id.logout();
         }, false);
       }, false);
