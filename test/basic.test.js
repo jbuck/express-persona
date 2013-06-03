@@ -1,6 +1,8 @@
 var common = require("./common"),
     test = require("tap").test;
 
+var express = require("express");
+
 // We can use a fake audience in tests
 var audience = "http://example.org:80";
 
@@ -106,6 +108,33 @@ test("bad SSL cert on the verifier", function(t) {
     audience: audience,
     verifierURI: "https://63.245.217.134/verify"
   }, function(err, app) {
+    common.getAssertionFor(audience, function(err, assertionData) {
+      var localVerifier = "http://localhost:" + app.address().port + "/persona/verify";
+
+      common.verifyAssertion(localVerifier, assertionData.assertion, function(err, verifiedData) {
+        t.equal(verifiedData.status, "failure");
+        t.equal(verifiedData.reason, "Server-side exception");
+        t.end();
+        app.close();
+      });
+    });
+  });
+});
+
+test("no bodyParser used", function(t) {
+  t.plan(2);
+
+  var app = express.createServer();
+
+  app.use(express.cookieParser())
+  app.use(express.session({
+    secret: "blah"
+  }));
+  require('../index.js')(app, {
+    audience: audience,
+  });
+
+  app.listen(0, "127.0.0.1", function() {
     common.getAssertionFor(audience, function(err, assertionData) {
       var localVerifier = "http://localhost:" + app.address().port + "/persona/verify";
 
