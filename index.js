@@ -51,6 +51,7 @@ module.exports = function(app, options) {
     // If the bodyParser middleware hasn't been used() then we can't get the assertion
     if (!req.body) {
       personaOpts.verifyResponse("Server-side exception", req, res);
+      return;
     }
 
     var vreq = https.request(verifierOpts, function(verifierRes) {
