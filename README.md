@@ -119,6 +119,10 @@ Documentation
   * Default: see _Logout route_, below, for response
   * `error` will be a string suitable for display, if an error occurs
   * `req, res` are the request and response objects
+* `middleware(req, res, next)` - Custom middleware for logout/login routes
+  * Default: none
+  * `req, res` are the request and response objects
+  * `next` points to the next middleware function in the chain
 
 ### Verify route
 
