@@ -26,6 +26,9 @@ var defaultOptions = {
       out = { status: "okay" };
     }
     res.json(out);
+  },
+  middleware: function(req, res, next) {
+    next();
   }
 };
 
@@ -47,7 +50,7 @@ module.exports = function(app, options) {
   verifierOpts.rejectUnauthorized = true;
   verifierOpts.agent = new https.Agent(verifierOpts);
 
-  app.post(personaOpts.verifyPath, function(req, res) {
+  app.post(personaOpts.verifyPath, personaOpts.middleware, function(req, res) {
     // If the bodyParser middleware hasn't been used() then we can't get the assertion
     if (!req.body) {
       personaOpts.verifyResponse("Server-side exception", req, res);
@@ -100,7 +103,7 @@ module.exports = function(app, options) {
     vreq.end(data);
   });
 
-  app.post(personaOpts.logoutPath, function(req, res) {
+  app.post(personaOpts.logoutPath, personaOpts.middleware, function(req, res) {
     if (req.session) {
       req.session[personaOpts.sessionKey] = null;
     }
