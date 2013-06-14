@@ -1,6 +1,6 @@
 {
   "name": "express-persona",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "Mozilla Persona authentication for your Express application",
   "keywords": [
     "mozilla",
