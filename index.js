@@ -1,7 +1,8 @@
 "use strict";
 
 var https = require("https"),
-    url = require("url");
+    url = require("url"),
+    express = require("express");
 
 var defaultOptions = {
   audience: "",
@@ -50,7 +51,7 @@ module.exports = function(app, options) {
   verifierOpts.rejectUnauthorized = true;
   verifierOpts.agent = new https.Agent(verifierOpts);
 
-  app.post(personaOpts.verifyPath, personaOpts.middleware, function(req, res) {
+  app.post(personaOpts.verifyPath, express.urlencoded(), personaOpts.middleware, function(req, res) {
     // If the bodyParser middleware hasn't been used() then we can't get the assertion
     if (!req.body) {
       personaOpts.verifyResponse("Server-side exception", req, res);
