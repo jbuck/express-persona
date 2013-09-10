@@ -34,9 +34,9 @@ module.exports = {
     q.push({audience: audience}, callback);
   },
   createServer: function createServer(options, callback) {
-    var app = express.createServer();
+    var app = express();
 
-    app.use(express.bodyParser())
+    app.use(express.json())
       .use(express.cookieParser())
       .use(express.session({
         secret: "blah"
@@ -46,9 +46,10 @@ module.exports = {
       res.json(req.session);
     });
 
-    app.listen(0, "127.0.0.1", function() {
-      require('../index.js')(app, options);
-      callback(null, app);
+    require('../index.js')(app, options);
+
+    var server = app.listen(8383, "127.0.0.1", function() {
+      callback(null, server);
     });
   },
   verifyAssertion: function verifyAssertion(localVerifier, assertion, callback) {

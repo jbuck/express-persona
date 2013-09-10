@@ -9,9 +9,9 @@ var audience = "http://example.org:80";
 test("basic login test with defaults", function(t) {
   t.plan(5);
 
-  common.createServer({audience: audience}, function(err, app) {
+  common.createServer({audience: audience}, function(err, server) {
     common.getAssertionFor(audience, function(err, assertionData) {
-      var host = "http://localhost:" + app.address().port;
+      var host = "http://localhost:8383";
       var localVerifier = host + "/persona/verify";
 
       common.verifyAssertion(localVerifier, assertionData.assertion, function(err, verifiedData) {
@@ -24,7 +24,7 @@ test("basic login test with defaults", function(t) {
             common.getSessionData(host + "/session", function(err, body) {
               t.equal(body.email, null);
               t.end();
-              app.close();
+              server.close();
             });
           });
         });
@@ -36,15 +36,15 @@ test("basic login test with defaults", function(t) {
 test("no audience set", function(t) {
   t.plan(2);
 
-  common.createServer({}, function(err, app) {
+  common.createServer({}, function(err, server) {
     common.getAssertionFor(audience, function(err, assertionData) {
-      var localVerifier = "http://localhost:" + app.address().port + "/persona/verify";
+      var localVerifier = "http://localhost:8383/persona/verify";
 
       common.verifyAssertion(localVerifier, assertionData.assertion, function(err, verifiedData) {
         t.equal(verifiedData.status, "failure");
         t.equal(verifiedData.reason, "need assertion and audience");
         t.end();
-        app.close();
+        server.close();
       });
     });
   });
@@ -53,15 +53,15 @@ test("no audience set", function(t) {
 test("wrong audience", function(t) {
   t.plan(2);
 
-  common.createServer({audience: audience}, function(err, app) {
+  common.createServer({audience: audience}, function(err, server) {
     common.getAssertionFor("http://lolhaxzors.net:80", function(err, assertionData) {
-      var localVerifier = "http://localhost:" + app.address().port + "/persona/verify";
+      var localVerifier = "http://localhost:8383/persona/verify";
 
       common.verifyAssertion(localVerifier, assertionData.assertion, function(err, verifiedData) {
         t.equal(verifiedData.status, "failure");
         t.equal(verifiedData.reason, "audience mismatch: domain mismatch");
         t.end();
-        app.close();
+        server.close();
       });
     });
   });
@@ -77,9 +77,9 @@ test("no default options", function(t) {
     sessionKey: "user",
     verifyResponse: function (error, req, res, email) { res.json({ error: error, email: email }); },
     logoutResponse: function (error, req, res) { res.json({error: error}); }
-  }, function(err, app) {
+  }, function(err, server) {
     common.getAssertionFor(audience, function(err, assertionData) {
-      var host = "http://localhost:" + app.address().port;
+      var host = "http://localhost:8383";
       var localVerifier = host + "/browserid/verify";
 
       common.verifyAssertion(localVerifier, assertionData.assertion, function(err, verifiedData) {
@@ -92,7 +92,7 @@ test("no default options", function(t) {
             common.getSessionData(host + "/session", function(err, body) {
               t.equal(body.user, null);
               t.end();
-              app.close();
+              server.close();
             });
           });
         });
@@ -107,15 +107,15 @@ test("bad SSL cert on the verifier", function(t) {
   common.createServer({
     audience: audience,
     verifierURI: "https://63.245.217.134/verify"
-  }, function(err, app) {
+  }, function(err, server) {
     common.getAssertionFor(audience, function(err, assertionData) {
-      var localVerifier = "http://localhost:" + app.address().port + "/persona/verify";
+      var localVerifier = "http://localhost:8383/persona/verify";
 
       common.verifyAssertion(localVerifier, assertionData.assertion, function(err, verifiedData) {
         t.equal(verifiedData.status, "failure");
         t.equal(verifiedData.reason, "Server-side exception");
         t.end();
-        app.close();
+        server.close();
       });
     });
   });
@@ -124,7 +124,7 @@ test("bad SSL cert on the verifier", function(t) {
 test("no bodyParser used", function(t) {
   t.plan(2);
 
-  var app = express.createServer();
+  var app = express();
 
   app.use(express.cookieParser())
   app.use(express.session({
@@ -134,15 +134,15 @@ test("no bodyParser used", function(t) {
     audience: audience,
   });
 
-  app.listen(0, "127.0.0.1", function() {
+  var server = app.listen(8383, "127.0.0.1", function() {
     common.getAssertionFor(audience, function(err, assertionData) {
-      var localVerifier = "http://localhost:" + app.address().port + "/persona/verify";
+      var localVerifier = "http://localhost:8383/persona/verify";
 
       common.verifyAssertion(localVerifier, assertionData.assertion, function(err, verifiedData) {
         t.equal(verifiedData.status, "failure");
         t.equal(verifiedData.reason, "Server-side exception");
         t.end();
-        app.close();
+        server.close();
       });
     });
   });
