@@ -120,30 +120,3 @@ test("bad SSL cert on the verifier", function(t) {
     });
   });
 });
-
-test("no bodyParser used", function(t) {
-  t.plan(2);
-
-  var app = express();
-
-  app.use(express.cookieParser())
-  app.use(express.session({
-    secret: "blah"
-  }));
-  require('../index.js')(app, {
-    audience: audience,
-  });
-
-  var server = app.listen(8383, "127.0.0.1", function() {
-    common.getAssertionFor(audience, function(err, assertionData) {
-      var localVerifier = "http://localhost:8383/persona/verify";
-
-      common.verifyAssertion(localVerifier, assertionData.assertion, function(err, verifiedData) {
-        t.equal(verifiedData.status, "failure");
-        t.equal(verifiedData.reason, "Server-side exception");
-        t.end();
-        server.close();
-      });
-    });
-  });
-});
