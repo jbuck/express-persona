@@ -54,28 +54,30 @@ module.exports = {
   verifyAssertion: function verifyAssertion(localVerifier, assertion, callback) {
     request.post({
       uri: localVerifier,
-      json: true,
-      body: JSON.stringify({
+      json: {
         assertion: assertion
-      })
+      },
+      jar: true
     }, function(err, response, body) {
-      callback(null, body);
+      callback(err, body);
     });
   },
   getSessionData: function getSessionData(uri, callback) {
     request.get({
       uri: uri,
-      json: true
+      json: true,
+      jar: true
     }, function(err, response, body) {
-      callback(null, body);
+      callback(err, body);
     });
   },
   logout: function logout(localLogout, callback) {
     request.post({
       uri: localLogout,
-      json: true
+      json: true,
+      jar: true
     }, function(err, response, body) {
-      callback(null, body);
+      callback(err, body);
     });
   }
 };
