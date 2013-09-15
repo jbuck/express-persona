@@ -1,8 +1,6 @@
 "use strict";
 
 var connect = require("connect"),
-    https = require("https"),
-    url = require("url"),
     browseridVerify = require("browserid-verify");
 
 var defaultOptions = {
