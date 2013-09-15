@@ -113,7 +113,7 @@ test("bad SSL cert on the verifier", function(t) {
 
       common.verifyAssertion(localVerifier, assertionData.assertion, function(err, verifiedData) {
         t.equal(verifiedData.status, "failure");
-        t.equal(verifiedData.reason, "Server-side exception");
+        t.equal(verifiedData.reason, "Hostname/IP doesn't match certificate's altnames");
         t.end();
         server.close();
       });

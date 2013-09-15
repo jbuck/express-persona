@@ -2,7 +2,8 @@
 
 var connect = require("connect"),
     https = require("https"),
-    url = require("url");
+    url = require("url"),
+    browseridVerify = require("browserid-verify");
 
 var defaultOptions = {
   audience: "",
@@ -45,11 +46,9 @@ module.exports = function(app, options) {
     }
   });
 
-  // Use our own https agent that rejects bad SSL certs
-  var verifierOpts = url.parse(personaOpts.verifierURI);
-  verifierOpts.method = "POST";
-  verifierOpts.rejectUnauthorized = true;
-  verifierOpts.agent = new https.Agent(verifierOpts);
+  var verify = browseridVerify({
+    url: personaOpts.verifierURI
+  });
 
   app.post(personaOpts.verifyPath, connect.json(), connect.urlencoded(), personaOpts.middleware, function(req, res) {
     // If the body can't be parsed then we can't get the assertion
@@ -58,50 +57,24 @@ module.exports = function(app, options) {
       return;
     }
 
-    var vreq = https.request(verifierOpts, function(verifierRes) {
-      var body = "";
-
-      verifierRes.on("error", function(error) {
-        personaOpts.verifyResponse("Server-side exception", req, res);
-      });
-
-      verifierRes.on("data", function(chunk) {
-        body = body + chunk;
-      });
-
-      // Match the Persona Remote Verification API's return values
-      // https://developer.mozilla.org/en-US/docs/Persona/Remote_Verification_API#Return_values
-      verifierRes.on("end", function() {
-        try {
-          var response = JSON.parse(body),
-              valid = response && response.status === "okay";
-
-          if (valid) {
-            if (req.session) {
-              req.session[personaOpts.sessionKey] = response.email;
-            }
-
-            personaOpts.verifyResponse(null, req, res, response.email);
-          } else {
-            personaOpts.verifyResponse(response.reason, req, res);
-          }
-
-        } catch (e) {
-          personaOpts.verifyResponse("Server-side exception", req, res);
+    verify(req.body.assertion, personaOpts.audience, function(err, email, response) {
+      if (err) {
+        if (err instanceof Error) {
+          err = err.message;
         }
-      });
+        return personaOpts.verifyResponse(err, req, res);
+      }
+
+      if (response && response.status !== "okay") {
+        return personaOpts.verifyResponse(response.reason, req, res, email);
+      }
+
+      if (req.session) {
+        req.session[personaOpts.sessionKey] = email;
+      }
+
+      personaOpts.verifyResponse(null, req, res, email);
     });
-    // SSL validation can fail, which will be thrown here
-    vreq.on("error", function(error) {
-      personaOpts.verifyResponse("Server-side exception", req, res);
-    });
-    vreq.setHeader("Content-Type", "application/json");
-    var data = JSON.stringify({
-      assertion: req.body.assertion,
-      audience: personaOpts.audience
-    });
-    vreq.setHeader("Content-Length", data.length);
-    vreq.end(data);
   });
 
   app.post(personaOpts.logoutPath, personaOpts.middleware, function(req, res) {
