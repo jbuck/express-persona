@@ -1,11 +1,12 @@
 var express = require("express"),
-    app = express.createServer();
+    app = express();
 
 // The bodyParser, cookieParser, and session middlewares are required for express-persona
 // If you don't want to use express' session middle, you could also use `client-sessions`
 app.use(express.logger())
    .use(express.static(__dirname))
-   .use(express.bodyParser())
+   .use(express.urlencoded())
+   .use(express.json())
    .use(express.cookieParser())
    .use(express.session({
      secret: "mozillapersona"
@@ -19,7 +20,6 @@ require("../index.js")(app, {
 });
 
 app.listen(3000, function() {
-  var addy = app.address();
   console.log('HTTP server started on http://localhost:3000');
   console.log('Press Ctrl+C to stop');
 });
