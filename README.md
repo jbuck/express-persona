@@ -13,9 +13,10 @@ Include the module inside your Express application:
 
 ```javascript
 var express = require("express"),
-    app = express.createServer();
+    app = express();
 
-app.use(express.bodyParser())
+app.use(express.json())
+  .use(express.urlencoded())
   .use(express.cookieParser())
   .use(express.session({
   	secret: "mozillapersona"
