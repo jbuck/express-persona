@@ -81,7 +81,7 @@ This library will handle 3 of 4 essential practices for [Persona security consid
 implement CSRF protection as well. I recommend the built-in express csrf middleware.
 
 You can view and run complete examples in the
-[examples directory](https://github.com/jbuck/express-persona/tree/master/examples)
+[examples directory](https://github.com/jbuck/express-persona/tree/master/examples).
 
 Documentation
 -------------
