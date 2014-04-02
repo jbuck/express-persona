@@ -18,7 +18,7 @@ app.use(express.logger())
 require("../index.js")(app, {
   audience: "http://localhost:3000",
   verifyResponse: function(err, req, res, email) {
-    if (email.indexOf("gmail") !== -1) {
+    if (email.indexOf("gmail") === -1) {
       req.session.authorized = true;
       res.json({ status: "okay", email: email });
       return;
