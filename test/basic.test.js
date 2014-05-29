@@ -7,14 +7,15 @@ var express = require("express");
 var audience = "http://example.org:80";
 
 test("basic login test with defaults", function(t) {
-  t.plan(5);
+  t.plan(6);
 
   common.createServer({audience: audience}, function(err, server) {
     common.getAssertionFor(audience, function(err, assertionData) {
       var host = "http://localhost:8383";
       var localVerifier = host + "/persona/verify";
 
-      common.verifyAssertion(localVerifier, assertionData.assertion, function(err, verifiedData) {
+      common.verifyAssertion(localVerifier, assertionData.assertion, function(err, verifiedData, res) {
+        t.equal(res.statusCode, 200);
         t.equal(verifiedData.status, "okay");
         t.equal(verifiedData.email, assertionData.email);
         common.getSessionData(host + "/session", function(err, body) {
@@ -34,13 +35,14 @@ test("basic login test with defaults", function(t) {
 });
 
 test("no audience set", function(t) {
-  t.plan(2);
+  t.plan(3);
 
   common.createServer({}, function(err, server) {
     common.getAssertionFor(audience, function(err, assertionData) {
       var localVerifier = "http://localhost:8383/persona/verify";
 
-      common.verifyAssertion(localVerifier, assertionData.assertion, function(err, verifiedData) {
+      common.verifyAssertion(localVerifier, assertionData.assertion, function(err, verifiedData, res) {
+        t.equal(res.statusCode, 500);
         t.equal(verifiedData.status, "failure");
         t.equal(verifiedData.reason, "need assertion and audience");
         t.end();
@@ -51,13 +53,14 @@ test("no audience set", function(t) {
 });
 
 test("wrong audience", function(t) {
-  t.plan(2);
+  t.plan(3);
 
   common.createServer({audience: audience}, function(err, server) {
     common.getAssertionFor("http://lolhaxzors.net:80", function(err, assertionData) {
       var localVerifier = "http://localhost:8383/persona/verify";
 
-      common.verifyAssertion(localVerifier, assertionData.assertion, function(err, verifiedData) {
+      common.verifyAssertion(localVerifier, assertionData.assertion, function(err, verifiedData, res) {
+        t.equal(res.statusCode, 500);
         t.equal(verifiedData.status, "failure");
         t.equal(verifiedData.reason, "audience mismatch: domain mismatch");
         t.end();
@@ -68,7 +71,7 @@ test("wrong audience", function(t) {
 });
 
 test("no default options", function(t) {
-  t.plan(5);
+  t.plan(6);
 
   common.createServer({
     audience: audience,
@@ -82,7 +85,8 @@ test("no default options", function(t) {
       var host = "http://localhost:8383";
       var localVerifier = host + "/browserid/verify";
 
-      common.verifyAssertion(localVerifier, assertionData.assertion, function(err, verifiedData) {
+      common.verifyAssertion(localVerifier, assertionData.assertion, function(err, verifiedData, res) {
+        t.equal(res.statusCode, 200);
         t.equal(verifiedData.error, null);
         t.equal(verifiedData.email, assertionData.email);
         common.getSessionData(host + "/session", function(err, body) {
@@ -102,7 +106,7 @@ test("no default options", function(t) {
 });
 
 test("bad SSL cert on the verifier", function(t) {
-  t.plan(2);
+  t.plan(3);
 
   common.createServer({
     audience: audience,
@@ -111,7 +115,8 @@ test("bad SSL cert on the verifier", function(t) {
     common.getAssertionFor(audience, function(err, assertionData) {
       var localVerifier = "http://localhost:8383/persona/verify";
 
-      common.verifyAssertion(localVerifier, assertionData.assertion, function(err, verifiedData) {
+      common.verifyAssertion(localVerifier, assertionData.assertion, function(err, verifiedData, res) {
+        t.equal(res.statusCode, 500);
         t.equal(verifiedData.status, "failure");
         t.equal(verifiedData.reason, "Hostname/IP doesn't match certificate's altnames");
         t.end();
