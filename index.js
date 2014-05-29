@@ -13,6 +13,7 @@ var defaultOptions = {
     var out;
     if (error) {
       out = { status: "failure", reason: error };
+      res.status(500);
     } else {
       out = { status: "okay", email: email };
     }

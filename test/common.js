@@ -60,7 +60,7 @@ module.exports = {
       },
       jar: true
     }, function(err, response, body) {
-      callback(err, body);
+      callback(err, body, response);
     });
   },
   getSessionData: function getSessionData(uri, callback) {
