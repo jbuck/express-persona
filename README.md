@@ -9,7 +9,7 @@ Quick start
 -----------
 Install using npm: `npm install express-persona`
 
-Include the module inside your Express application:
+Include the module inside your Express 3.x application:
 
 ```javascript
 var express = require("express"),
@@ -26,6 +26,28 @@ require("express-persona")(app, {
   audience: "http://localhost:8888" // Must match your browser's address bar
 });
 ```
+
+Or include the module inside your Express 4.x application:
+
+```javascript
+var express = require("express"),
+    bodyParser = require('body-parser'),
+    session = require("express-session"),
+    cookieParser = require('cookie-parser'),
+    app = express();
+
+app.use(bodyParser.json())
+  .use(bodyParser.urlencoded())
+  .use(cookieParse())
+  .use(session({
+  	secret: "mozillapersona"
+  }));
+
+require("express-persona")(app, {
+  audience: "http://localhost:8888" // Must match your browser's address bar
+});
+```
+
 
 Include the Persona library in your web page:
 
@@ -78,7 +100,8 @@ email is validated.
 
 This library will handle 3 of 4 essential practices for [Persona security considerations]
 (https://developer.mozilla.org/en-US/docs/Persona/Security_Considerations) but you should
-implement CSRF protection as well. I recommend the built-in express csrf middleware.
+implement CSRF protection as well. I recommend the built-in express 3.x csrf middleware,
+or the [csurf](https://www.npmjs.org/package/csurf) packge for express 4.x
 
 You can view and run complete examples in the
 [examples directory](https://github.com/jbuck/express-persona/tree/master/examples).
